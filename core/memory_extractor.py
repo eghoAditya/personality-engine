@@ -7,33 +7,65 @@ from .prompts import MEMORY_EXTRACTION_SYSTEM_PROMPT
 
 def extract_memories_from_messages(messages: List[str]) -> Dict[str, Any]:
     """
-    Given a list of user messages (strings),
-    call the LLM to extract:
+    Given a list of user messages (strings), call the LLM to extract:
       - user_preferences
       - emotional_patterns
       - facts
-    and return a structured dict.
-    (We'll implement the detailed prompt and parsing logic later.)
+
+    Returns a structured dict matching the schema described in MEMORY_EXTRACTION_SYSTEM_PROMPT.
+    If the model output is not valid JSON, we return a fallback dict with the raw text.
     """
     client = get_default_client()
 
-    # Join messages into a single text block for now
-    user_text = "\n".join(f"- {m}" for m in messages)
+    if not messages:
+        return {
+            "user_preferences": [],
+            "emotional_patterns": [],
+            "facts": [],
+            "warning": "No messages provided.",
+        }
+
+    numbered_messages_lines = []
+    for idx, msg in enumerate(messages, start=1):
+        numbered_messages_lines.append(f"{idx}. {msg}")
+    messages_block = "\n".join(numbered_messages_lines)
 
     system_msg = LLMMessage(role="system", content=MEMORY_EXTRACTION_SYSTEM_PROMPT)
     user_msg = LLMMessage(
         role="user",
-        content=f"Here are the user's past messages:\n{user_text}\n\n"
-                f"Extract memories as structured JSON.",
+        content=(
+            "You will receive a list of the user's past chat messages, in chronological order.\n"
+            "Each message is numbered. Use the numbering when filling evidence_messages.\n\n"
+            "USER MESSAGES:\n"
+            f"{messages_block}\n\n"
+            "Now extract memories according to the JSON schema. "
+            "Remember: respond with JSON ONLY."
+        ),
     )
 
     raw_response = client.chat([system_msg, user_msg])
 
-    # We'll refine schema & validation later.
+    parsed: Dict[str, Any]
     try:
-        data = json.loads(raw_response)
+        parsed = json.loads(raw_response)
     except json.JSONDecodeError:
-        # If it's not valid JSON, we just wrap raw text for now.
-        data = {"raw_response": raw_response}
+        try:
+            first_brace = raw_response.index("{")
+            last_brace = raw_response.rindex("}")
+            json_str = raw_response[first_brace:last_brace + 1]
+            parsed = json.loads(json_str)
+        except Exception:
+            parsed = {
+                "user_preferences": [],
+                "emotional_patterns": [],
+                "facts": [],
+                "raw_response": raw_response,
+                "error": "Model did not return valid JSON.",
+            }
 
-    return data
+    # Ensure the three top-level keys exist
+    for key in ["user_preferences", "emotional_patterns", "facts"]:
+        if key not in parsed or not isinstance(parsed[key], list):
+            parsed[key] = []
+
+    return parsed

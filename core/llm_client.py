@@ -18,7 +18,7 @@ class LLMMessage:
 
 
 class LLMClient:
-    def __init__(self, api_key: Optional[str] = None, model: str = "llama-3.1-70b-versatile"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "llama-3.1-8b-instant"):
         self.api_key = api_key or GROQ_API_KEY
         if not self.api_key:
             raise ValueError("GROQ_API_KEY is not set in environment.")
