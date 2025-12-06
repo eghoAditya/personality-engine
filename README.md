@@ -83,13 +83,13 @@ streamlit run app.py
 ```
 Open the URL shown in terminal (usually http://localhost:8501)
 
-## 🧪 How to Use the App
+##  How to Use the App
 
 1️⃣ **Groq LLM Test**
 - Use the top section to send a simple test prompt to Groq and confirm the LLM is working.
 
 2️⃣ **Memory Extraction**
-- Scroll to **“🧠 Memory Extraction from User Messages”**
+- Scroll to **“ Memory Extraction from User Messages”**
 - Paste ~30 of the user’s past messages (one per line is fine)
 - Click **“Extract Memories”**
 - The app will extract and display:
@@ -99,26 +99,27 @@ Open the URL shown in terminal (usually http://localhost:8501)
 - Expand **Raw memory JSON** for the complete structured output.
 
 3️⃣ **Neutral Assistant Reply**
-- Scroll to **“💬 Neutral Assistant Reply”**
+- Scroll to **“ Neutral Assistant Reply”**
 - Enter the user's new question
 - Click **“Generate Neutral Reply”**
 - The system uses the extracted memories (if available)
 - Result: a clear, neutral, helpful answer
 
 4️⃣ **Personality Engine – Before/After**
-- Scroll to **“🎭 Personality Engine - Before / After”**
+- Scroll to **“Personality Engine - Before / After”**
 - Choose a personality:
-  - Calm mentor 👨‍🏫
-  - Witty friend 😄
-  - Therapist-style 🧑‍⚕️
+  - Calm mentor 
+  - Witty friend 
+  - Therapist-style 
 - Click **“Transform Neutral Reply”**
 - The UI shows:
-  - 📤 Before: Neutral Reply
-  - 🎨 After: Personality-styled reply
+  - Before: Neutral Reply
+  - After: Personality-styled reply
 
-> Same core meaning, different tone 🌀
+> Same core meaning, different tone 
 
 ---
+
 
 ## 🧩 Code Structure
 
@@ -134,6 +135,7 @@ personality engine/
 ├── .env.example
 ├── requirements.txt
 └── README.md
+
 
 
 - **llm_client.py**
@@ -155,7 +157,7 @@ personality engine/
 
 ---
 
-## 🌐 Deployment
+## Deployment
 
 You can deploy easily using **Streamlit Cloud**:
 
@@ -167,4 +169,4 @@ You can deploy easily using **Streamlit Cloud**:
 5. Add **Secrets** (environment variables):
    - `GROQ_API_KEY=your_key_here`
    - (optional) `GROQ_MODEL=llama-3.1-8b-instant`
-6. Deploy → copy the public URL for assignment submission 🚀
+6. Deploy 
