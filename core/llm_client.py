@@ -5,7 +5,6 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from groq import Groq
 
-# Load environment variables (including GROQ_API_KEY)
 load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -13,7 +12,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 @dataclass
 class LLMMessage:
-    role: str  # "system", "user", "assistant"
+    role: str 
     content: str
 
 
@@ -38,6 +37,5 @@ class LLMClient:
         return response.choices[0].message.content
 
 
-# We'll create a singleton-style helper later if needed
 def get_default_client() -> LLMClient:
     return LLMClient()

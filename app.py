@@ -5,22 +5,41 @@ from dotenv import load_dotenv
 from core.llm_client import get_default_client, LLMMessage
 from core.memory_extractor import extract_memories_from_messages
 from core.assistant import generate_neutral_reply
+from core.personality_engine import apply_personality_style
 
-
-# Load environment variables from .env
 load_dotenv()
+
+PERSONALITY_PRESETS = {
+    "Calm mentor": (
+        "calm_mentor: You speak like a calm, experienced mentor. "
+        "You are patient, structured, and encouraging. You avoid slang, "
+        "and you gently reassure the user while giving practical advice."
+    ),
+    "Witty friend": (
+        "witty_friend: You speak like a playful, witty friend. "
+        "You can use light humor and mild sarcasm, but you are always kind "
+        "and supportive. You keep things casual and fun, but still helpful."
+    ),
+    "Therapist-style": (
+        "therapist_style: You speak like an empathetic therapist or counselor. "
+        "You validate the user's emotions, reflect their feelings, and ask gentle, "
+        "open-ended questions when appropriate. Your tone is soft, non-judgmental, "
+        "and focused on emotional safety."
+    ),
+}
+
 
 st.set_page_config(page_title="Personality Engine", page_icon="🧠")
 
 st.title("🧠 Personality Engine")
-st.caption("Founding AI Engineer Assignment - Memory + Personality Demo")
+
 
 groq_api_key = os.getenv("GROQ_API_KEY")
 
 if not groq_api_key:
-    st.warning("⚠️ GROQ_API_KEY not found. Create a .env file to enable LLM features.")
+    st.warning(" GROQ_API_KEY not found. Create a .env file to enable LLM features.")
 else:
-    st.success("🔐 GROQ_API_KEY detected! Ready to talk to Groq API.")
+    st.success(" GROQ_API_KEY detected! Ready to talk to Groq API.")
 
 st.write("""
 ### What this app will do:
@@ -35,15 +54,10 @@ st.write("""
    - Calm mentor
    - Witty friend
    - Therapist-style
-
-We're building it step-by-step 🚀
 """)
 
-# --------------------------------------------------------------------
-# 🔎 Groq LLM Test (from previous step)
-# --------------------------------------------------------------------
 st.divider()
-st.subheader("🔎 Groq LLM Test")
+st.subheader(" Groq LLM Test")
 
 test_prompt = st.text_area(
     "Enter a test prompt to send to Groq:",
@@ -66,9 +80,9 @@ if st.button("Run Groq test"):
         except Exception as e:
             st.error(f"Error while calling Groq: {e}")
 
-# --------------------------------------------------------------------
-# 🧠 Memory Extraction Section
-# --------------------------------------------------------------------
+
+# Memory Extraction Section
+
 st.divider()
 st.subheader("🧠 Memory Extraction from User Messages")
 
@@ -99,7 +113,7 @@ if st.button("Extract Memories"):
     if not groq_api_key:
         st.error("GROQ_API_KEY is missing. Please set it in a .env file and restart the app.")
     else:
-        # Split messages by lines, remove empty lines
+       
         raw_lines = [line.strip() for line in messages_input.splitlines() if line.strip()]
         if not raw_lines:
             st.warning("Please paste at least one message before extracting memories.")
@@ -115,13 +129,13 @@ if st.button("Extract Memories"):
 # Display extracted memories (if available)
 memories = st.session_state.get("memories")
 if memories:
-    st.subheader("📌 Extracted Memories")
+    st.subheader(" Extracted Memories")
 
     user_preferences = memories.get("user_preferences", [])
     emotional_patterns = memories.get("emotional_patterns", [])
     facts = memories.get("facts", [])
 
-    st.markdown("#### 🎯 User Preferences")
+    st.markdown("#### User Preferences")
     if user_preferences:
         for pref in user_preferences:
             st.markdown(f"- **{pref.get('category', 'unknown').title()}**: {pref.get('description', '')} "
@@ -129,7 +143,7 @@ if memories:
     else:
         st.write("_No user preferences extracted._")
 
-    st.markdown("#### 💭 Emotional Patterns")
+    st.markdown("#### Emotional Patterns")
     if emotional_patterns:
         for emo in emotional_patterns:
             st.markdown(
@@ -140,7 +154,7 @@ if memories:
     else:
         st.write("_No emotional patterns extracted._")
 
-    st.markdown("#### 🧾 Facts Worth Remembering")
+    st.markdown("#### Facts Worth Remembering")
     if facts:
         for fact in facts:
             st.markdown(
@@ -154,11 +168,11 @@ if memories:
         st.json(memories)
 else:
     st.info("No memories extracted yet. Paste messages and click 'Extract Memories' to see results.")
-    # --------------------------------------------------------------------
-# 💬 Neutral Assistant Reply (Base Response)
-# --------------------------------------------------------------------
+    
+# Neutral Assistant Reply (Base Response)
+
 st.divider()
-st.subheader("💬 Neutral Assistant Reply")
+st.subheader(" Neutral Assistant Reply")
 
 st.write("""
 Use this section to ask a new question or request.
@@ -193,8 +207,65 @@ if st.button("Generate Neutral Reply"):
                 st.session_state["neutral_reply"] = ""
 
 if st.session_state.get("neutral_reply"):
-    st.markdown("#### ✉️ Neutral Reply")
+    st.markdown("#### Neutral Reply")
     st.write(st.session_state["neutral_reply"])
 else:
     st.info("No neutral reply generated yet. Enter a question and click 'Generate Neutral Reply'.")
+
+# Personality Engine - Transform Neutral Reply
+st.divider()
+st.subheader("🎭 Personality Engine - Before / After")
+
+st.write("""
+Here we take the **neutral reply** and rewrite it in different personality styles
+while keeping the core content and instructions the same.
+""")
+
+if "personality_reply" not in st.session_state:
+    st.session_state["personality_reply"] = ""
+
+# Let the user pick a personality
+personality_label = st.selectbox(
+    "Choose a personality style:",
+    options=list(PERSONALITY_PRESETS.keys()),
+    index=0,
+)
+
+if st.button("Transform Neutral Reply"):
+    if not groq_api_key:
+        st.error("GROQ_API_KEY is missing. Please set it in a .env file and restart the app.")
+    elif not st.session_state.get("neutral_reply"):
+        st.warning("Please generate a neutral reply first.")
+    else:
+        with st.spinner("Transforming reply into selected personality..."):
+            try:
+                # Get current memories and neutral reply
+                current_memories = st.session_state.get("memories") or {}
+                base_reply = st.session_state.get("neutral_reply", "")
+
+                # Combine personality label and description into one string
+                personality_instruction = PERSONALITY_PRESETS[personality_label]
+
+                transformed = apply_personality_style(
+                    base_reply=base_reply,
+                    memories=current_memories,
+                    personality=personality_instruction,
+                )
+                st.session_state["personality_reply"] = transformed
+            except Exception as e:
+                st.error(f"Error while transforming reply: {e}")
+                st.session_state["personality_reply"] = ""
+
+# Show Before / After
+if st.session_state.get("neutral_reply") and st.session_state.get("personality_reply"):
+    st.markdown("#### 📤 Before: Neutral Reply")
+    st.write(st.session_state["neutral_reply"])
+
+    st.markdown(f"#### 🎨 After: {personality_label} Style")
+    st.write(st.session_state["personality_reply"])
+elif st.session_state.get("neutral_reply"):
+    st.info("Neutral reply is ready. Choose a personality and click 'Transform Neutral Reply' to see the styled version.")
+else:
+    st.info("No neutral reply yet. Generate a neutral reply first above.")
+
 

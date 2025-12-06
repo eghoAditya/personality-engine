@@ -63,7 +63,6 @@ def extract_memories_from_messages(messages: List[str]) -> Dict[str, Any]:
                 "error": "Model did not return valid JSON.",
             }
 
-    # Ensure the three top-level keys exist
     for key in ["user_preferences", "emotional_patterns", "facts"]:
         if key not in parsed or not isinstance(parsed[key], list):
             parsed[key] = []
