@@ -1,6 +1,13 @@
 # Personality Engine 
 
-Founding AI Engineer assignment implementation: a **Memory Extraction + Personality Transformation** system for a conversational AI.
+This project demonstrates a Memory Extraction + Personality Transformation system for a conversational AI.
+
+**Live Demo:** https://personality-engine.streamlit.app
+
+[![Streamlit App](https://img.shields.io/badge/Streamlit-Live%20App-brightgreen)](https://personality-engine.streamlit.app
+)
+
+---
 
 ##  What this project does
 
