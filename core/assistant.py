@@ -12,7 +12,6 @@ def generate_neutral_reply(user_query: str, memories: Dict[str, Any]) -> str:
     """
     client = get_default_client()
 
-    # Turn memories into a compact JSON string (or note if none)
     if memories:
         try:
             memories_text = json.dumps(memories, ensure_ascii=False, indent=2)

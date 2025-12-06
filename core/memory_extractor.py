@@ -13,7 +13,7 @@ def extract_memories_from_messages(messages: List[str]) -> Dict[str, Any]:
       - facts
 
     Returns a structured dict matching the schema described in MEMORY_EXTRACTION_SYSTEM_PROMPT.
-    If the model output is not valid JSON, we return a fallback dict with the raw text.
+    If the model output is not valid JSON, a fallback dict with raw text is returned.
     """
     client = get_default_client()
 
@@ -39,20 +39,19 @@ def extract_memories_from_messages(messages: List[str]) -> Dict[str, Any]:
             "USER MESSAGES:\n"
             f"{messages_block}\n\n"
             "Now extract memories according to the JSON schema. "
-            "Remember: respond with JSON ONLY."
+            "Respond with JSON only."
         ),
     )
 
     raw_response = client.chat([system_msg, user_msg])
 
-    parsed: Dict[str, Any]
     try:
         parsed = json.loads(raw_response)
     except json.JSONDecodeError:
         try:
             first_brace = raw_response.index("{")
             last_brace = raw_response.rindex("}")
-            json_str = raw_response[first_brace:last_brace + 1]
+            json_str = raw_response[first_brace : last_brace + 1]
             parsed = json.loads(json_str)
         except Exception:
             parsed = {
