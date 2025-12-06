@@ -124,17 +124,18 @@ Open the URL shown in terminal (usually http://localhost:8501)
 ## 🧩 Code Structure
 
 personality engine/
-├── app.py # Streamlit UI + orchestration
+├── app.py                     # Streamlit UI + orchestration
 ├── core/
-│ ├── init.py
-│ ├── llm_client.py # Groq API wrapper
-│ ├── prompts.py # LLM prompt templates
-│ ├── memory_extractor.py # Memory extraction + JSON parsing
-│ ├── assistant.py # Neutral reply generation using memory
-│ └── personality_engine.py # Personality transformation logic
+│   ├── __init__.py
+│   ├── llm_client.py          # Groq API wrapper
+│   ├── prompts.py             # LLM prompt templates
+│   ├── memory_extractor.py    # Memory extraction + JSON parsing
+│   ├── assistant.py           # Neutral reply generation using memory
+│   └── personality_engine.py  # Personality transformation logic
 ├── .env.example
 ├── requirements.txt
 └── README.md
+
 
 
 
