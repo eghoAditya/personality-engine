@@ -123,6 +123,7 @@ Open the URL shown in terminal (usually http://localhost:8501)
 
 ## 🧩 Code Structure
 
+```bash
 personality engine/
 ├── app.py                     # Streamlit UI + orchestration
 ├── core/
@@ -135,7 +136,7 @@ personality engine/
 ├── .env.example
 ├── requirements.txt
 └── README.md
-
+```
 
 
 
